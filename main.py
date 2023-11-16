@@ -68,7 +68,7 @@ if __name__ == "__main__":
         for note, intensity in data["chords"].items():
             #print(note, intensity)
             for i in range(len(val)):
-                if intensity >= 0.95:
+                if intensity >= 0.65:
                     val[i] += synestesy[note][i] * intensity
 
         # normalize
