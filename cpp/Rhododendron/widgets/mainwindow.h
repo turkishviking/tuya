@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <widgets/scene/scene.h>
+#include <engine/engine.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,5 +25,7 @@ private:
     Ui::MainWindow *ui;
     QVBoxLayout *centralLayout;
     Scene *scene;
+
+    Engine engine;
 };
 #endif // MAINWINDOW_H
