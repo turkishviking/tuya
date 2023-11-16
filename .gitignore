@@ -2,6 +2,9 @@
 devices
 snapshot.json
 cpp/build*
+python/cloud
+python/devices
+python/lamps/Devices.py
 
 
 # Byte-compiled / optimized / DLL files
