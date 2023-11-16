@@ -2,5 +2,10 @@
 
 Engine::Engine()
 {
+    lamps = tuyaController.getLamps();
+}
 
+std::vector<Lamp> Engine::getLamps()
+{
+    return lamps;
 }

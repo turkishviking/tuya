@@ -23,7 +23,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QVBoxLayout *centralLayout;
     Scene *scene;
 
     Engine engine;

@@ -8,7 +8,6 @@ TuyaController::TuyaController()
     if(socket->waitForConnected(3000))
     {
         //qDebug() << "Connected!";
-
         // send
         QJsonObject json;
         QJsonDocument jsonDoc;
@@ -19,7 +18,17 @@ TuyaController::TuyaController()
         socket->waitForBytesWritten();
         socket->waitForReadyRead();
         //qDebug() << "Reading: " << socket->bytesAvailable();
-        qDebug() << socket->readAll();
+        QJsonDocument res = QJsonDocument::fromJson(socket->readAll());
+
+        int i = 1;
+        foreach (const QJsonValue & v, res.array())
+        {
+            Lamp l;
+            l.id = v.toObject().value("id").toString();
+            l.name = QString("tuya ") + QString::number(i);
+            lamps.push_back(l);
+            i++;
+        }
 
         socket->close();
     }
@@ -28,4 +37,9 @@ TuyaController::TuyaController()
         qDebug() << "Not connected!";
     }
 
+}
+
+std::vector<Lamp> TuyaController::getLamps()
+{
+    return lamps;
 }

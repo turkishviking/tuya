@@ -7,15 +7,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    centralLayout = new QVBoxLayout;
-    scene = new Scene;
-    centralLayout->addWidget(scene);
-    ui->centralBox->setLayout(centralLayout);
+    scene = new Scene(nullptr, &engine);
+    ui->centralLayout->addWidget(scene);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete scene;
 }
 
 
