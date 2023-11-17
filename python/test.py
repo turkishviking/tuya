@@ -46,7 +46,7 @@ if __name__ == "__main__":
     }
 
 
-    stream = Stream(display=False)
+    stream = Stream(display=True)
     stream.start()  # open the the stream
     oldVal = [255, 0, 0]
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         data = stream.getChordIntensity()
         try:
             data["y"]
-            #stream.fig.draw(data["y"], None, None, data["y3"])
+            stream.fig.draw(data["y"], None, None, data["y3"])
         except Exception as e:
             pass
         #print(chords)
