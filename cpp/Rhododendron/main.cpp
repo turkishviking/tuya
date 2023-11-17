@@ -3,10 +3,20 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QFile>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    // Load an application style
+    QFile styleFile( ":/Genetive.qss" );
+    styleFile.open( QFile::ReadOnly );
+
+    // Apply the loaded stylesheet
+    QString style( styleFile.readAll() );
+    a.setStyleSheet( style );
+
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

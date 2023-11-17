@@ -21,6 +21,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_SceneButton_clicked()
 {
-    scene->setVisible(false);
+
+    //scene->setVisible(false);
 }
 

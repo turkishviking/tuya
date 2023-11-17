@@ -20,12 +20,26 @@ public:
     void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
     void dropEvent(QGraphicsSceneDragDropEvent *event);
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent);
+public:
     Engine* engine;
 
+
+private:
+    void getSelection();
 private:
     bool dragOver;
     std::map<QString, LampWidget*> *lampWidgets;
     std::map<QString, QGraphicsProxyWidget*> sceneItems;
+    std::map<QGraphicsProxyWidget*, LampWidget*> proxyItems;
+    QPointF posOrigin;
+    bool drawSelect = false;
+    QGraphicsRectItem rectSelection;
+    QGraphicsView* graphicsView;
+    std::vector<QGraphicsProxyWidget*> selection;
+    QGraphicsItemGroup groupedSelection;
 };
 
 

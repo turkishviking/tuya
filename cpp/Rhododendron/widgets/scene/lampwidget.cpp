@@ -15,7 +15,9 @@ LampWidget::LampWidget(QWidget *parent, Lamp *l)
 void LampWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
+    {
         dragStartPosition = event->pos();
+    }
 }
 
 
