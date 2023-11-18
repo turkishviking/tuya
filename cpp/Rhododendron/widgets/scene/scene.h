@@ -9,6 +9,7 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <map>
 #include <widgets/graphicsviewzoom.h>
+#include <set>
 
 class GraphicScene : public QGraphicsScene
 {
@@ -23,23 +24,34 @@ public:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent);
+    virtual void keyPressEvent(QKeyEvent * event);
+    virtual void keyReleaseEvent(QKeyEvent * event);
+
 public:
     Engine* engine;
 
 
 private:
     void getSelection();
+    void selectItem(QGraphicsProxyWidget* item);
+    void unSelectItem(QGraphicsProxyWidget* item);
+    bool isSelected(QGraphicsProxyWidget* item);
+    void UnselectAll();
 private:
     bool dragOver;
     std::map<QString, LampWidget*> *lampWidgets;
     std::map<QString, QGraphicsProxyWidget*> sceneItems;
     std::map<QGraphicsProxyWidget*, LampWidget*> proxyItems;
     QPointF posOrigin;
+    bool leftButtonPressed = false;
     bool drawSelect = false;
+    bool displayRectSelection = false;
+    QPointF dragStartPosition = QPointF(0,0);
     QGraphicsRectItem rectSelection;
     QGraphicsView* graphicsView;
-    std::vector<QGraphicsProxyWidget*> selection;
+    std::set<QGraphicsProxyWidget*> selection;
     QGraphicsItemGroup groupedSelection;
+    bool isCtrlKey = false;
 };
 
 

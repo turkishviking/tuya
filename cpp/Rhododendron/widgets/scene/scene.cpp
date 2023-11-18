@@ -29,22 +29,105 @@ GraphicScene::~GraphicScene()
 
 void GraphicScene::getSelection()
 {
-    selection.clear();
-    for(auto &item : proxyItems)
+
+
+}
+
+bool GraphicScene::isSelected(QGraphicsProxyWidget* item)
+{
+    for(auto &e:selection)
+        qDebug() << e << item;
+    return std::find(selection.begin(), selection.end(), item) != selection.end();
+}
+
+void GraphicScene::UnselectAll()
+{
+    if(!selection.empty())
     {
-        if(rectSelection.collidesWithItem(item.first))
+        for (auto it = selection.begin(); it != selection.end(); )
         {
-            item.second->setStyleSheet("border: 4px solid #f094ef;");
-            selection.push_back(item.first);
-            groupedSelection.addToGroup(item.first);
+            if (true)
+            {
+                unSelectItem(*it);
+                it = selection.erase(it);
+            }
+            else {
+                ++it;
+            }
         }
+        selection.clear();
+    }
+}
+
+void GraphicScene::selectItem(QGraphicsProxyWidget* item)
+{
+    proxyItems[item]->setStyleSheet("\
+                                    QToolButton\
+                                    {\
+                                        color: #f094ef;\
+                                        border: 4px solid #f094ef;\
+                                    }\
+                                    ");
+    selection.insert(item);
+    groupedSelection.addToGroup(item);
+}
+
+void GraphicScene::unSelectItem(QGraphicsProxyWidget* item)
+{
+    groupedSelection.removeFromGroup(item);
+    proxyItems[item]->setStyleSheet("\
+                                        QToolButton \
+                                        {\
+                                            background-color: transparent;\
+                                            color: #f094ef;\
+                                            border: 4px solid #414141;\
+                                        }\
+                                        QToolButton:hover\
+                                        {\
+                                            background-color: transparent;\
+                                            color: #f094ef;\
+                                            border: 4px solid #ffba60;\
+                                        }\
+                                    ");
+    update();
+}
+
+void GraphicScene::keyPressEvent(QKeyEvent * event)
+{
+    //qDebug() << event->key();
+    if(event->key() == Qt::Key_Control)
+    {
+        isCtrlKey = true;
+        event->accept();
+    }
+    else if(event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
+    {
+        qDebug() << "ddd";
+    }
+}
+
+void GraphicScene::keyReleaseEvent(QKeyEvent * event)
+{
+    if(event->key() == Qt::Key_Control)
+    {
+        isCtrlKey = false;
+        event->accept();
     }
 }
 
 void GraphicScene::mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent)
 {
-    //qDebug() << Q_FUNC_INFO << mouseEvent->scenePos();
-    if(drawSelect)
+    //qDebug() << "man" << ((mouseEvent->scenePos() - dragStartPosition).manhattanLength() > QApplication::startDragDistance()) << drawSelect;
+    if ((mouseEvent->scenePos() - dragStartPosition).manhattanLength() > QApplication::startDragDistance() && drawSelect)
+    {
+        displayRectSelection = true;
+    }
+    else
+    {
+        displayRectSelection = false;
+    }
+
+    if(displayRectSelection)
     {
         rectSelection.show();
         rectSelection.setRect(posOrigin.x(), posOrigin.y(), mouseEvent->scenePos().x() - posOrigin.x(), mouseEvent->scenePos().y() - posOrigin.y());
@@ -56,26 +139,17 @@ void GraphicScene::mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent)
 void GraphicScene::mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent)
 {
     QGraphicsItem *item = itemAt(mouseEvent->scenePos(), QTransform());
-    //qDebug() << Q_FUNC_INFO << mouseEvent->scenePos() << item;
+    //qDebug() << Q_FUNC_INFO << item;
 
     //item selection
     if(mouseEvent->button() == Qt::LeftButton)
     {
+        leftButtonPressed = true;
+        dragStartPosition = mouseEvent->scenePos();
         if(!item)
         {
             posOrigin = mouseEvent->scenePos();
             drawSelect = true;
-            for(auto &item:selection)
-            {
-                proxyItems[item]->setStyleSheet("border: 4px solid #414141;");
-            }
-
-            for(auto &item : selection)
-            {
-                groupedSelection.removeFromGroup(item);
-            }
-
-            selection.clear();
         }
     }
     update();
@@ -84,11 +158,50 @@ void GraphicScene::mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent)
 
 void GraphicScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
 {
-    //qDebug() << Q_FUNC_INFO << mouseEvent->scenePos();
-    if(drawSelect && rectSelection.isVisible())
+    //qDebug() << drawSelect << displayRectSelection;
+    if(displayRectSelection)
     {
-        getSelection();
+        if(rectSelection.isVisible())
+        {
+            UnselectAll();
+            qDebug() << "Unselect select rect";
+            for(auto &item : proxyItems)
+            {
+                if(rectSelection.collidesWithItem(item.first))
+                {
+                    selectItem(item.first);
+                }
+            }
+        }
     }
+    else
+    {
+        QGraphicsItem *item = itemAt(mouseEvent->scenePos(), QTransform());
+        if(!isCtrlKey)
+        {
+            qDebug() << "Unselect select ctrl";
+            UnselectAll();
+        }
+
+
+        else if(item)
+        {
+            QGraphicsProxyWidget* proxy = static_cast<QGraphicsProxyWidget*>(item);
+            qDebug() << "before" << isSelected(proxy);
+            if(isSelected(proxy))
+            {
+                unSelectItem(proxy);
+                selection.erase(proxy);
+                qDebug() << "unselect" << isSelected(proxy) << isSelected(proxy);
+            }
+            else
+            {
+                selectItem(proxy);
+            }
+            qDebug() << "after" << isSelected(proxy);
+        }
+    }
+
     rectSelection.hide();
     drawSelect = false;
     update();
@@ -100,12 +213,12 @@ void GraphicScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 
     if(event->mimeData()->data("LampWidget").size() != 0)
     {
-        event->setAccepted(true);
+        //event->setAccepted(true);
         dragOver = true;
     }
     else
     {
-        event->setAccepted(false);
+        //event->setAccepted(false);
     }
     update();
 }
@@ -114,14 +227,14 @@ void GraphicScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     if(event->mimeData()->data("LampWidget").size() != 0)
     {
-        event->setAccepted(true);
+        //event->setAccepted(true);
     }
     update();
 }
 
 void GraphicScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-    event->setAccepted(true);
+    //event->setAccepted(true);
     QString id = event->mimeData()->data("id");
 
     LampWidget *lampWidget = lampWidgets->at(id);
@@ -149,6 +262,10 @@ void GraphicScene::dropEvent(QGraphicsSceneDragDropEvent *event)
     dragOver = false;
     update();
 }
+
+
+
+
 
 
 Scene::Scene(QWidget *parent,Engine *engine) :

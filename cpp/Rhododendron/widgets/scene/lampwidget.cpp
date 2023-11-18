@@ -7,7 +7,7 @@ LampWidget::LampWidget(QWidget *parent, Lamp *l)
     this->setMinimumSize(QSize(48,48));
     this->setVisible(true);
     this->setCursor(Qt::ClosedHandCursor);
-
+    this->setCheckable(false);
     lamp = *l;
 }
 

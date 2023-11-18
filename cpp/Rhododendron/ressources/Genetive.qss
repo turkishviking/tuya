@@ -224,8 +224,7 @@ QToolButton
 	margin: 2px;
 	
 }
-
-
+   
 QToolButton:hover
 {
 	background-color: #f094ef;
@@ -256,6 +255,18 @@ QToolButton:disabled
 
 }
 
+LampWidget
+{                                         
+	background-color: transparent;
+	color: #f094ef;
+	border: 4px solid #414141;
+}
+LampWidget:hover
+{
+	background-color: transparent;
+	color: #f094ef;
+	border: 4px solid #f094ef;
+}
 
 /*-----QDockWidget-----*/
 QDockWidget

@@ -45,8 +45,8 @@ if __name__ == "__main__":
         "B":[255, 128, 128]
     }
 
-
-    stream = Stream(display=True)
+    group.changeBrightness(10)
+    stream = Stream(display=False)
     stream.start()  # open the the stream
     oldVal = [255, 0, 0]
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         data = stream.getChordIntensity()
         try:
             data["y"]
-            stream.fig.draw(data["y"], None, None, data["y3"])
+            #stream.fig.draw(data["y"], None, None, data["y3"])
         except Exception as e:
             pass
         #print(chords)
