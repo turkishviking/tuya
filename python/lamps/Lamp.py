@@ -107,14 +107,18 @@ def getAvailableDevices(fromCloud=False):
     realDevices = []
     for device in devices:
         # Connect to Device
-        d = tinytuya.BulbDevice(
-            dev_id=device["id"],
-            address='Auto',  # Or set to 'Auto' to auto-discover IP address
-            local_key=device["key"],
-            version=3.3)
-        d.set_socketPersistent(True)
-        l = Lamp(d)
-        l.id = device["id"]
-        realDevices.append(l)
+        print(device)
+        try:
+            d = tinytuya.BulbDevice(
+                dev_id=device["id"],
+                address='Auto',  # Or set to 'Auto' to auto-discover IP address
+                local_key=device["key"],
+                version=3.3)
+            d.set_socketPersistent(True)
+            l = Lamp(d)
+            l.id = device["id"]
+            realDevices.append(l)
+        except Exception as e:
+            print(e)
 
     return realDevices

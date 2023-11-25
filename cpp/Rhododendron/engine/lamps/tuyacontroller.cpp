@@ -7,7 +7,7 @@ TuyaController::TuyaController()
 
     if(socket->waitForConnected(3000))
     {
-        //qDebug() << "Connected!";
+        qDebug() << "Connected!";
         // send
         QJsonObject json;
         QJsonDocument jsonDoc;

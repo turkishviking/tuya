@@ -30,6 +30,8 @@ public:
 public:
     Engine* engine;
 
+signals:
+    void itemRemoved(LampWidget* lamp);
 
 private:
     void getSelection();
@@ -37,6 +39,7 @@ private:
     void unSelectItem(QGraphicsProxyWidget* item);
     bool isSelected(QGraphicsProxyWidget* item);
     void UnselectAll();
+    void removeSelectedFromScene();
 private:
     bool dragOver;
     std::map<QString, LampWidget*> *lampWidgets;
@@ -67,6 +70,9 @@ public:
     ~Scene();
     QGraphicsRectItem  test;
     Engine* engine;
+
+public slots:
+    void addWidget(LampWidget* lamp);
 
 private:
     Ui::Scene *ui;

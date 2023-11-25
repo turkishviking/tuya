@@ -17,6 +17,11 @@ public:
     explicit LampWidget(QWidget *parent = nullptr, Lamp *lamp = nullptr);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void enterEvent(QEnterEvent *event);
+    void leaveEvent(QEvent *event);
+    void unSelect();
+    void select();
+    QString getId();
 
 private:
     Lamp lamp;

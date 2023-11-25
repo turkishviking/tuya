@@ -33,10 +33,24 @@ void GraphicScene::getSelection()
 
 }
 
+void GraphicScene::removeSelectedFromScene()
+{
+    for(auto &item : selection)
+    {
+        removeItem(item);
+        item->setWidget(nullptr);
+        QString id = proxyItems[item]->getId();
+        sceneItems.erase(id);
+        emit itemRemoved(proxyItems[item]);
+        proxyItems.erase(item);
+    }
+
+    selection.clear();
+    update();
+}
+
 bool GraphicScene::isSelected(QGraphicsProxyWidget* item)
 {
-    for(auto &e:selection)
-        qDebug() << e << item;
     return std::find(selection.begin(), selection.end(), item) != selection.end();
 }
 
@@ -46,14 +60,8 @@ void GraphicScene::UnselectAll()
     {
         for (auto it = selection.begin(); it != selection.end(); )
         {
-            if (true)
-            {
-                unSelectItem(*it);
-                it = selection.erase(it);
-            }
-            else {
-                ++it;
-            }
+            unSelectItem(*it);
+            it = selection.erase(it);
         }
         selection.clear();
     }
@@ -61,34 +69,16 @@ void GraphicScene::UnselectAll()
 
 void GraphicScene::selectItem(QGraphicsProxyWidget* item)
 {
-    proxyItems[item]->setStyleSheet("\
-                                    QToolButton\
-                                    {\
-                                        color: #f094ef;\
-                                        border: 4px solid #f094ef;\
-                                    }\
-                                    ");
     selection.insert(item);
     groupedSelection.addToGroup(item);
+    proxyItems[item]->select();
+    update();
 }
 
 void GraphicScene::unSelectItem(QGraphicsProxyWidget* item)
 {
     groupedSelection.removeFromGroup(item);
-    proxyItems[item]->setStyleSheet("\
-                                        QToolButton \
-                                        {\
-                                            background-color: transparent;\
-                                            color: #f094ef;\
-                                            border: 4px solid #414141;\
-                                        }\
-                                        QToolButton:hover\
-                                        {\
-                                            background-color: transparent;\
-                                            color: #f094ef;\
-                                            border: 4px solid #ffba60;\
-                                        }\
-                                    ");
+    proxyItems[item]->unSelect();
     update();
 }
 
@@ -102,7 +92,7 @@ void GraphicScene::keyPressEvent(QKeyEvent * event)
     }
     else if(event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
     {
-        qDebug() << "ddd";
+        removeSelectedFromScene();
     }
 }
 
@@ -164,7 +154,7 @@ void GraphicScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
         if(rectSelection.isVisible())
         {
             UnselectAll();
-            qDebug() << "Unselect select rect";
+            //qDebug() << "Unselect select rect";
             for(auto &item : proxyItems)
             {
                 if(rectSelection.collidesWithItem(item.first))
@@ -179,7 +169,7 @@ void GraphicScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
         QGraphicsItem *item = itemAt(mouseEvent->scenePos(), QTransform());
         if(!isCtrlKey)
         {
-            qDebug() << "Unselect select ctrl";
+            //qDebug() << "Unselect select ctrl";
             UnselectAll();
         }
 
@@ -187,18 +177,18 @@ void GraphicScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
         else if(item)
         {
             QGraphicsProxyWidget* proxy = static_cast<QGraphicsProxyWidget*>(item);
-            qDebug() << "before" << isSelected(proxy);
+            //qDebug() << "before" << isSelected(proxy);
             if(isSelected(proxy))
             {
                 unSelectItem(proxy);
                 selection.erase(proxy);
-                qDebug() << "unselect" << isSelected(proxy) << isSelected(proxy);
+                //qDebug() << "unselect" << isSelected(proxy) << isSelected(proxy);
             }
             else
             {
                 selectItem(proxy);
             }
-            qDebug() << "after" << isSelected(proxy);
+            //qDebug() << "after" << isSelected(proxy);
         }
     }
 
@@ -299,6 +289,14 @@ Scene::Scene(QWidget *parent,Engine *engine) :
     scene->setSceneRect(-16363,-16363, 32726, 32726);
     scene->update();
 
+    connect(scene, &GraphicScene::itemRemoved, this, &Scene::addWidget);
+
+}
+
+void Scene::addWidget(LampWidget* lampWidget)
+{
+    lampWidget->setParent(NULL);
+    ui->verticalLayout_scene_2->insertWidget(0,lampWidget);
 }
 
 Scene::~Scene()

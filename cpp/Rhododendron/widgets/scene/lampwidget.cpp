@@ -46,3 +46,49 @@ void LampWidget::mouseMoveEvent(QMouseEvent *event)
     Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
 
 }
+
+void LampWidget::enterEvent(QEnterEvent *event)
+{
+    //qDebug() << "enterEvent";
+    setStyleSheet("\
+                    QToolButton\
+                    {\
+                        color: #f094ef;\
+                        border: 4px solid #f096ef;\
+                    }\
+                    ");
+                }
+
+void LampWidget::leaveEvent(QEvent *event)
+{
+    //qDebug() << "leaveEvent";
+    setStyleSheet("\
+                    QToolButton \
+                    {\
+                        background-color: transparent;\
+                        color: #f094ef;\
+                        border: 4px solid #414141;\
+                    }\
+                    QToolButton:hover\
+                    {\
+                      background-color: transparent;\
+                      color: #f094ef;\
+                      border: 4px solid #414141;\
+                    }\
+                ");
+}
+
+void LampWidget::unSelect()
+{
+    leaveEvent(nullptr);
+}
+
+void LampWidget::select()
+{
+    enterEvent(nullptr);
+}
+
+QString LampWidget::getId()
+{
+    return lamp.id;
+}
