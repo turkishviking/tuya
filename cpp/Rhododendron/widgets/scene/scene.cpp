@@ -1,262 +1,6 @@
 #include "scene.h"
 #include "ui_scene.h"
 
-GraphicScene::GraphicScene(QWidget *parent, Engine *engine, std::map<QString, LampWidget*> *lampWidgets)
-{
-    engine = engine;
-    this->lampWidgets = lampWidgets;
-
-    QBrush penBrush(QColor(200,200,200, 150), Qt::BrushStyle::SolidPattern);
-    QPen pen(penBrush, 2, Qt::PenStyle::SolidLine);
-    rectSelection.setPen(pen);
-
-    QBrush rectBrush(QColor(240,148,239, 50), Qt::BrushStyle::SolidPattern);
-    rectSelection.setBrush(rectBrush);
-    rectSelection.setZValue(1000);
-    addItem(&rectSelection);
-
-    addItem(&groupedSelection);
-    groupedSelection.setFlag(QGraphicsItem::ItemIsMovable);
-    this->graphicsView = static_cast<QGraphicsView*>(parent);
-}
-
-
-GraphicScene::~GraphicScene()
-{
-    QToolButton b;
-    b.setStyleSheet("");
-}
-
-void GraphicScene::getSelection()
-{
-
-
-}
-
-void GraphicScene::removeSelectedFromScene()
-{
-    for(auto &item : selection)
-    {
-        removeItem(item);
-        item->setWidget(nullptr);
-        QString id = proxyItems[item]->getId();
-        sceneItems.erase(id);
-        emit itemRemoved(proxyItems[item]);
-        proxyItems.erase(item);
-    }
-
-    selection.clear();
-    update();
-}
-
-bool GraphicScene::isSelected(QGraphicsProxyWidget* item)
-{
-    return std::find(selection.begin(), selection.end(), item) != selection.end();
-}
-
-void GraphicScene::UnselectAll()
-{
-    if(!selection.empty())
-    {
-        for (auto it = selection.begin(); it != selection.end(); )
-        {
-            unSelectItem(*it);
-            it = selection.erase(it);
-        }
-        selection.clear();
-    }
-}
-
-void GraphicScene::selectItem(QGraphicsProxyWidget* item)
-{
-    selection.insert(item);
-    groupedSelection.addToGroup(item);
-    proxyItems[item]->select();
-    update();
-}
-
-void GraphicScene::unSelectItem(QGraphicsProxyWidget* item)
-{
-    groupedSelection.removeFromGroup(item);
-    proxyItems[item]->unSelect();
-    update();
-}
-
-void GraphicScene::keyPressEvent(QKeyEvent * event)
-{
-    //qDebug() << event->key();
-    if(event->key() == Qt::Key_Control)
-    {
-        isCtrlKey = true;
-        event->accept();
-    }
-    else if(event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
-    {
-        removeSelectedFromScene();
-    }
-}
-
-void GraphicScene::keyReleaseEvent(QKeyEvent * event)
-{
-    if(event->key() == Qt::Key_Control)
-    {
-        isCtrlKey = false;
-        event->accept();
-    }
-}
-
-void GraphicScene::mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent)
-{
-    //qDebug() << "man" << ((mouseEvent->scenePos() - dragStartPosition).manhattanLength() > QApplication::startDragDistance()) << drawSelect;
-    if ((mouseEvent->scenePos() - dragStartPosition).manhattanLength() > QApplication::startDragDistance() && drawSelect)
-    {
-        displayRectSelection = true;
-    }
-    else
-    {
-        displayRectSelection = false;
-    }
-
-    if(displayRectSelection)
-    {
-        rectSelection.show();
-        rectSelection.setRect(posOrigin.x(), posOrigin.y(), mouseEvent->scenePos().x() - posOrigin.x(), mouseEvent->scenePos().y() - posOrigin.y());
-    }
-    update();
-    QGraphicsScene::mouseMoveEvent(mouseEvent);
-}
-
-void GraphicScene::mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent)
-{
-    QGraphicsItem *item = itemAt(mouseEvent->scenePos(), QTransform());
-    //qDebug() << Q_FUNC_INFO << item;
-
-    //item selection
-    if(mouseEvent->button() == Qt::LeftButton)
-    {
-        leftButtonPressed = true;
-        dragStartPosition = mouseEvent->scenePos();
-        if(!item)
-        {
-            posOrigin = mouseEvent->scenePos();
-            drawSelect = true;
-        }
-    }
-    update();
-    QGraphicsScene::mousePressEvent(mouseEvent);
-}
-
-void GraphicScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
-{
-    //qDebug() << drawSelect << displayRectSelection;
-    if(displayRectSelection)
-    {
-        if(rectSelection.isVisible())
-        {
-            UnselectAll();
-            //qDebug() << "Unselect select rect";
-            for(auto &item : proxyItems)
-            {
-                if(rectSelection.collidesWithItem(item.first))
-                {
-                    selectItem(item.first);
-                }
-            }
-        }
-    }
-    else
-    {
-        QGraphicsItem *item = itemAt(mouseEvent->scenePos(), QTransform());
-        if(!isCtrlKey)
-        {
-            //qDebug() << "Unselect select ctrl";
-            UnselectAll();
-        }
-
-
-        else if(item)
-        {
-            QGraphicsProxyWidget* proxy = static_cast<QGraphicsProxyWidget*>(item);
-            //qDebug() << "before" << isSelected(proxy);
-            if(isSelected(proxy))
-            {
-                unSelectItem(proxy);
-                selection.erase(proxy);
-                //qDebug() << "unselect" << isSelected(proxy) << isSelected(proxy);
-            }
-            else
-            {
-                selectItem(proxy);
-            }
-            //qDebug() << "after" << isSelected(proxy);
-        }
-    }
-
-    rectSelection.hide();
-    drawSelect = false;
-    update();
-    QGraphicsScene::mouseReleaseEvent(mouseEvent);
-}
-
-void GraphicScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
-{
-
-    if(event->mimeData()->data("LampWidget").size() != 0)
-    {
-        //event->setAccepted(true);
-        dragOver = true;
-    }
-    else
-    {
-        //event->setAccepted(false);
-    }
-    update();
-}
-
-void GraphicScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
-{
-    if(event->mimeData()->data("LampWidget").size() != 0)
-    {
-        //event->setAccepted(true);
-    }
-    update();
-}
-
-void GraphicScene::dropEvent(QGraphicsSceneDragDropEvent *event)
-{
-    //event->setAccepted(true);
-    QString id = event->mimeData()->data("id");
-
-    LampWidget *lampWidget = lampWidgets->at(id);
-    lampWidget->setParent(NULL);
-
-    QGraphicsProxyWidget * item;
-    if (sceneItems.count(id))
-    {
-        item = sceneItems[id];
-    }
-    else
-    {
-        item = addWidget(lampWidget);
-        sceneItems.insert(std::make_pair(id, item));
-        proxyItems.insert(std::make_pair(item, lampWidget));
-    }
-
-    //item->setParentItem(anOtherItem);
-    QPointF pos;
-    pos.setX(event->scenePos().rx() - item->boundingRect().width()/2);
-    pos.setY(event->scenePos().ry() - item->boundingRect().height()/2);
-    item->setPos(pos);
-    item->setZValue(1);
-
-    dragOver = false;
-    update();
-}
-
-
-
-
-
 
 Scene::Scene(QWidget *parent,Engine *engine) :
     QWidget(parent),
@@ -265,11 +9,13 @@ Scene::Scene(QWidget *parent,Engine *engine) :
     ui->setupUi(this);
     engine = engine;
 
+    lampsLayout.setContentsMargins(QMargins(0,0,0,0));
+    ui->buttonWidget->setLayout(&lampsLayout);
+
     for(auto &lamp : engine->getLamps())
     {
         LampWidget *lampWidget = new LampWidget(NULL, &lamp);
-        ui->verticalLayout_scene_2->insertWidget(0,lampWidget);
-        lampWidgets.insert(std::make_pair(lamp.id, lampWidget));
+        addWidget(lampWidget);
     }
 
     graphicView = new GraphicsViewZoom(ui->graphicsView);
@@ -289,14 +35,31 @@ Scene::Scene(QWidget *parent,Engine *engine) :
     scene->setSceneRect(-16363,-16363, 32726, 32726);
     scene->update();
 
-    connect(scene, &GraphicScene::itemRemoved, this, &Scene::addWidget);
+    connect(scene, &AbstractGraphicScene::itemRemoved, this, &Scene::addProxyWidget);
 
+}
+
+void Scene::addProxyWidget(QGraphicsProxyWidget* proxy)
+{
+    auto* lampWidget = static_cast<LampWidget*>(proxy->widget());
+    qDebug() << lampWidget << proxy;
+    addWidget(lampWidget);
 }
 
 void Scene::addWidget(LampWidget* lampWidget)
 {
-    lampWidget->setParent(NULL);
-    ui->verticalLayout_scene_2->insertWidget(0,lampWidget);
+
+    lampWidgets.insert(std::make_pair(lampWidget->getName(), lampWidget));
+    std::set<QString> list;
+    for(auto w: lampsLayout.children())
+    {
+        list.insert(static_cast<LampWidget*>(w)->getName());
+    }
+
+    int k = distance(list.begin(), list.find(lampWidget->getName()));
+    qDebug() << lampWidgets.size() << lampWidget->getName();
+    //if(lampsLayout.count() < k)
+    lampsLayout.insertWidget(k, lampWidget);
 }
 
 Scene::~Scene()
