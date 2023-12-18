@@ -38,3 +38,8 @@ QString LampWidget::getName()
 {
     return lamp.name;
 }
+
+Lamp* LampWidget::getLamp()
+{
+    return &lamp;
+}

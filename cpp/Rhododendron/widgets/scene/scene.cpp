@@ -9,6 +9,9 @@ Scene::Scene(QWidget *parent,Engine *engine) :
     ui->setupUi(this);
     engine = engine;
 
+    engine->groupWidget = new GroupWidget(this->ui->groupBox_scene_2);
+    engine->groupWidget->hide();
+
     lampsLayout.setContentsMargins(QMargins(0,0,0,0));
     ui->buttonWidget->setLayout(&lampsLayout);
 
@@ -36,7 +39,6 @@ Scene::Scene(QWidget *parent,Engine *engine) :
     scene->update();
 
     connect(scene, &AbstractGraphicScene::itemRemoved, this, &Scene::addProxyWidget);
-
 }
 
 void Scene::addProxyWidget(QGraphicsProxyWidget* proxy)

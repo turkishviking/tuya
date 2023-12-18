@@ -15,6 +15,7 @@ public:
     explicit LampWidget(QWidget *parent = nullptr, Lamp *lamp = nullptr);
     QString getId();
     QString getName();
+    Lamp* getLamp();
 
 private:
     Lamp lamp;

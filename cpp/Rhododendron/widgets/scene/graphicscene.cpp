@@ -2,9 +2,12 @@
 
 GraphicScene::GraphicScene(QWidget *parent, Engine *engine, std::map<QString, LampWidget*> *lampWidgets)
 {
-    engine = engine;
+    this->engine = engine;
     this->lampWidgets = lampWidgets;
     this->graphicsView = static_cast<QGraphicsView*>(parent);
+
+    connect(this, &AbstractGraphicScene::clicked, engine->groupWidget, &GroupWidget::hide);
+
 }
 
 
@@ -13,10 +16,55 @@ GraphicScene::~GraphicScene()
 
 }
 
-void GraphicScene::getSelection()
+void GraphicScene::setGroupWidgetToCursorPosition()
 {
+    // prevent groupWidget to go out off screen
+    QPoint pos;
+    QPoint groupPos = graphicsView->mapFromGlobal(QCursor::pos());
+    QSize groupSize = engine->groupWidget->size();
+    //center
+    groupPos.setX(groupPos.x() - groupSize.width()/2);
+    groupPos.setY(groupPos.y() - groupSize.height()/2);
+
+    QPoint viewPos = graphicsView->pos();
+    QSize viewSize = graphicsView->size();
 
 
+    if(groupPos.x() + groupSize.width() >= viewPos.x() + viewSize.width())
+        pos.setX(viewPos.x() + viewSize.width() - groupSize.width());
+    else if(groupPos.x() <= viewPos.x())
+        pos.setX(viewPos.x());
+    else
+        pos.setX(groupPos.x());
+
+    if(groupPos.y() + groupSize.height() >= viewPos.y() + viewSize.height())
+        pos.setY(viewPos.y() + viewSize.height() - groupSize.height());
+    else if(groupPos.y() <= viewPos.y())
+        pos.setY(viewPos.y());
+    else
+        pos.setY(groupPos.y());
+
+    engine->groupWidget->move(pos);
+}
+
+void GraphicScene::keyReleaseEvent(QKeyEvent * event)
+{
+    if(event->key() == Qt::Key_G)
+    {
+
+        if(engine->groupWidget->isVisible())
+        {
+            engine->groupWidget->hide();
+        }
+        else
+        {
+            setGroupWidgetToCursorPosition();
+            engine->groupWidget->updateSelection(groupedSelection);
+            engine->groupWidget->show();
+        }
+
+        event->accept();
+    }
 }
 
 
@@ -54,7 +102,7 @@ void GraphicScene::dropEvent(QGraphicsSceneDragDropEvent *event)
     lampWidget->setParent(NULL);
 
     QGraphicsProxyWidget * item;
-    qDebug() << "count" << sceneItems.count(id);
+    //qDebug() << "count" << sceneItems.count(id);
     if (sceneItems.count(id))
     {
         if(sceneItems[id]->widget())

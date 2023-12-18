@@ -7,6 +7,7 @@
 #include <map>
 #include <widgets/graphicsviewzoom.h>
 #include <widgets/scene/graphicscene.h>
+#include "widgets/scene/groupwidget.h"
 
 
 namespace Ui {
@@ -31,6 +32,7 @@ private:
     std::map<QString, LampWidget*> lampWidgets;
     GraphicsViewZoom *graphicView;
     QVBoxLayout lampsLayout;
+
 private:
     void addWidget(LampWidget* lampWidget);
 

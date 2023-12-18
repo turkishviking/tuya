@@ -44,6 +44,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         ${SRCS}
         ressources/ressources.qrc
+        widgets/scene/groupwidget.h widgets/scene/groupwidget.cpp widgets/scene/groupwidget.ui
     )
 
 

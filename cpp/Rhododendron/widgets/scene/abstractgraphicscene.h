@@ -19,12 +19,14 @@ private:
     QGraphicsProxyWidget* toProxy(QGraphicsItem* item);
 private:
     QGraphicsRectItem rectSelection;
-    QGraphicsItemGroup groupedSelection;
     bool isCtrlKey = false;
     bool displayRectSelection = false;
     bool drawSelect = false;
     QPointF dragStartPosition = QPointF(0,0);
     QPointF posOrigin;
+
+protected:
+    QGraphicsItemGroup groupedSelection;
 
 protected:
     void selectItem(QGraphicsProxyWidget* item);
@@ -40,6 +42,7 @@ protected:
 
 signals:
     void itemRemoved(QGraphicsProxyWidget* item);
+    void clicked();
 };
 
 #endif // ABSTRACTGRAPHICSCENE_H

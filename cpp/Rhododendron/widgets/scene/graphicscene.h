@@ -28,7 +28,8 @@ public:
 
 
 private:
-    void getSelection();
+    void keyReleaseEvent(QKeyEvent * event);
+    void setGroupWidgetToCursorPosition();
 
 private:
     bool dragOver;
@@ -36,8 +37,6 @@ private:
     std::map<QString, QGraphicsProxyWidget*> sceneItems;
     bool leftButtonPressed = false;
     QGraphicsView* graphicsView;
-
-
 };
 
 #endif // GRAPHICSCENE_H

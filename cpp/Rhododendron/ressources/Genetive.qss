@@ -23,11 +23,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 /*-----QWidget-----*/
 QWidget
 {
-	background-color: #202020;
+        background-color: #202020;
 	color: #fff;
 	selection-background-color: #f094ef; 
 	selection-color: #000;
 
+}
+
+GroupWidget
+{
+    background-color: #303030;
 }
 
 
@@ -507,7 +512,7 @@ QComboBox::down-arrow:on
 QComboBox QListView
 {
 	background-color: #292929;
-    border-left-style: solid; 
+        border-left-style: solid;
 	selection-background-color: #f094ef;
 	selection-color: #000;
 	color: #fff;
@@ -743,4 +748,6 @@ QSizeGrip
 	background-color: image("./ressources/sizegrip.png"); /*To replace*/
 
 }
+
+
 

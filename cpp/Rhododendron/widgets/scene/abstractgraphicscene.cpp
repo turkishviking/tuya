@@ -128,6 +128,7 @@ void AbstractGraphicScene::mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent
     }
     update();
     QGraphicsScene::mousePressEvent(mouseEvent);
+    emit clicked();
 }
 
 
