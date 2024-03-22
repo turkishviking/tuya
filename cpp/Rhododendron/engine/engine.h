@@ -4,7 +4,6 @@
 #include <engine/lamps/tuyacontroller.h>
 
 
-
 class Engine
 {
 public:

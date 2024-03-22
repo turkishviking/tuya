@@ -19,7 +19,9 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_SceneButton_clicked();
+    void on_FxButton_toggled(bool checked);
+
+    void on_SceneButton_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;

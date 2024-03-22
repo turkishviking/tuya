@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>Genetive.qss</file>
+        <file>../../icons/signe-fx.png</file>
+        <file>../../icons/scene.png</file>
     </qresource>
 </RCC>

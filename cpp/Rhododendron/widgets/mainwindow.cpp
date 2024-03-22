@@ -18,10 +18,15 @@ MainWindow::~MainWindow()
 }
 
 
-
-void MainWindow::on_SceneButton_clicked()
+void MainWindow::on_FxButton_toggled(bool checked)
 {
+    ui->SceneButton->setChecked(!checked);
+}
 
-    //scene->setVisible(false);
+
+void MainWindow::on_SceneButton_toggled(bool checked)
+{
+    scene->setVisible(checked);
+    ui->FxButton->setChecked(!checked);
 }
 
